@@ -1,11 +1,14 @@
 const express = require('express')
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express()
+const dbo = require('./model/data')
+let db = dbo.getDb();
+const userRouter = require("./routes/userRouter")
 app.use(cors());
-app.get('/api',(req,res)=>{
-    res.send("hello world");
-});
-const port = 4000;
+app.use(bodyParser.json()); 
+app.use("/",userRouter);
+const port = 8000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
