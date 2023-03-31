@@ -1,8 +1,8 @@
 const express = require("express");
-const userController = require("../controllers/userControllers");
+const boController = require("../controllers/boControllers");
 const app = express();
 const router = express.Router();
 
-router.post("/infoBO",userController.infoBO);
-
+router.get("/viewMCP", boController.viewMCP);
+router.post("/infoBO", boController.infoBO);
 module.exports = router;
