@@ -16,3 +16,9 @@ exports.viewMCP = async (req, res) => {
     .toArray();
   res.send(MCPs);
 };
+
+exports.viewWorker = async (req,res) =>{
+    const worker = await dbo.getDb().collection("worker").find({}).toArray();
+    console.log(worker)
+    res.send(worker);
+}
