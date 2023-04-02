@@ -4,6 +4,7 @@ const app = express();
 const router = express.Router();
 
 router.get("/viewMCP", boController.viewMCP);
-router.post("/infoBO", boController.infoBO);
 router.get("/viewWorker", boController.viewWorker)
+router.post("/infoBO", boController.infoBO);
+router.post("/assignUser",boController.assignUser);
 module.exports = router;
