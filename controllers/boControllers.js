@@ -23,12 +23,11 @@ exports.viewWorker = async (req, res) => {
   res.send(worker);
 };
 
-// const { ObjectId } = require("mongodb");
-// const dbo = require("../db/db");
 
 exports.assignUser = async (req, res) => {
   const MCPs = req.body.mcp_id;
   const Workers = req.body.worker_id;
+  const timeStamp = req.body.timeStamp;
   try {
     const WorkerCollection = await dbo.getDb().collection("worker");
     await Promise.all(
@@ -49,38 +48,10 @@ exports.assignUser = async (req, res) => {
     const GroupCollection = await dbo
       .getDb()
       .collection("group")
-      .insertOne({ worker_id: Workers, vehicle_id: "", mcp_id: MCPs });
+      .insertOne({ worker_id: Workers, vehicle_id: "", mcp_id: MCPs, day: timeStamp.day, month: timeStamp.month, year: timeStamp.year});
     res.send("Assign task successfully");
   } catch (err) {
     res.send(err);
   }
 };
 
-
-// exports.assignUser = async (req, res) => {
-//   const MCPs = req.body.mcp_id;
-//   const Workers = req.body.worker_id;
-//   try {
-//     // const WorkerCollection = await dbo.getDb().collection("worker");
-//     // const filter = {
-//     //   _id: { $in: Workers.map((worker_id) => ObjectId(worker_id)) },
-//     // };
-//     // const update = {
-//     //   $push: { tasks: { $each: MCPs } },
-//     //   $set: { is_avail: false },
-//     // };
-//     // await WorkerCollection.updateMany(filter, update);
-
-//     // const TaskCollection = await dbo.getDb().collection("tasks");
-//     // const filterMCPs = { _id: { $in: MCPs.map((mcp_id) => ObjectId(mcp_id)) } };
-//     // const updateMCPs = { $set: { isAssigned: true } };
-//     // await TaskCollection.updateMany(filterMCPs, updateMCPs);
-
-//     const groupDoc = { worker_id: Workers, vehicle_id: "", mcp_id: MCPs };
-//     await dbo.getDb().collection("group").insertOne(groupDoc);
-
-//     res.send("Assign task successfully");
-//   } catch (err) {
-//     res.send(err);
-//   }
-// };
