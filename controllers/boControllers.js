@@ -1,5 +1,5 @@
 const dbo = require("../model/data");
-const { ObjectId } = require('mongodb');
+const { ObjectId } = require("mongodb");
 
 exports.infoBO = async (req, res) => {
   const user = await dbo
@@ -23,7 +23,6 @@ exports.viewWorker = async (req, res) => {
   res.send(worker);
 };
 
-
 exports.assignUser = async (req, res) => {
   const MCPs = req.body.mcp_id;
   const Workers = req.body.worker_id;
@@ -45,13 +44,71 @@ exports.assignUser = async (req, res) => {
         await TaskCollection.updateOne(filter, update);
       })
     );
-    const GroupCollection = await dbo
-      .getDb()
-      .collection("group")
-      .insertOne({ worker_id: Workers, vehicle_id: "", mcp_id: MCPs, day: timeStamp.day, month: timeStamp.month, year: timeStamp.year});
+    const GroupCollection = await dbo.getDb().collection("group").insertOne({
+      worker_id: Workers,
+      vehicle_id: "",
+      mcp_id: MCPs,
+      day: timeStamp.day,
+      month: timeStamp.month,
+      year: timeStamp.year,
+    });
     res.send("Assign task successfully");
   } catch (err) {
     res.send(err);
   }
 };
-
+exports.viewGroup = async (req, res) => {
+  try {
+    const GroupCollection = await dbo
+      .getDb()
+      .collection("group")
+      .find({})
+      .toArray();
+    res.send(GroupCollection);
+  } catch (err) {
+    console.log(err);
+  }
+};
+exports.viewVehicle = async (req, res) => {
+  try {
+    const VehicleCollection = await dbo
+      .getDb()
+      .collection("vehicles")
+      .find({})
+      .toArray();
+    res.send(VehicleCollection);
+  } catch (err) {
+    console.log(err);
+  }
+};
+exports.assignVehicle = async (req, res) => {
+  try {
+    const vehicleID = req.body.selectedVehicle_id;
+    const Group = req.body.selectedGroup;
+    console.log(vehicleID, Group._id);
+    await dbo
+      .getDb()
+      .collection("group")
+      .updateOne(
+        { _id: new ObjectId(Group._id) },
+        {
+          $set: { vehicle_id: vehicleID },
+        }
+      ).then(()=>console.log("hi"))
+    await dbo
+      .getDb()
+      .collection("vehicles")
+      .updateOne(
+        { _id: new ObjectId(vehicleID) },
+        {
+          $set: {
+            isAssigned: true,
+            workers: Group.worker_id,
+            to_MCP: Group.mcp_id,
+            current_capacity: Group.worker_id.length,
+          },
+        }
+      );
+    res.send("successfully")
+  } catch (err) {}
+};
