@@ -94,7 +94,8 @@ exports.assignVehicle = async (req, res) => {
         {
           $set: { vehicle_id: vehicleID },
         }
-      ).then(()=>console.log("hi"))
+      )
+      .then(() => console.log("hi"));
     await dbo
       .getDb()
       .collection("vehicles")
@@ -109,6 +110,45 @@ exports.assignVehicle = async (req, res) => {
           },
         }
       );
-    res.send("successfully")
+    res.send("successfully");
   } catch (err) {}
+};
+
+exports.findGroup = async (req, res) => {
+  const removeGroup = await dbo
+    .getDb()
+    .collection("group")
+    .find({ _id: new ObjectId(req.body.removeGroup) })
+    .toArray();
+  res.send(removeGroup);
+};
+exports.removeGroup = async (req, res) => {
+  const group = await dbo
+    .getDb()
+    .collection("group")
+    .find({ _id: new ObjectId(req.body.group) })
+    .toArray();
+  const Workers = group[0].worker_id;
+  const MCPs = group[0].mcp_id;
+  const WorkerCollection = await dbo.getDb().collection("worker");
+  await Promise.all(
+    Workers.map(async (Worker) => {
+      const filter = { _id: new ObjectId(Worker)};
+      const update = { $set: { is_avail: true, tasks: [] } };
+      await WorkerCollection.updateOne(filter, update);
+    })
+  );
+  const TaskCollection = await dbo.getDb().collection("tasks");
+  await Promise.all(
+    MCPs.map(async (mcp_id) => {
+      const filter = { _id: new ObjectId(mcp_id) };
+      const update = { $set: { isAssigned: false } };
+      await TaskCollection.updateOne(filter, update);
+    })
+  );
+  await dbo
+    .getDb()
+    .collection("group")
+    .deleteOne({ _id: new ObjectId(req.body.group) });
+  res.send("Assign successfully")
 };
