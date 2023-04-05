@@ -12,5 +12,6 @@ router.post("/infoBO", boController.infoBO);
 router.post("/assignUser",boController.assignUser);
 router.post("/assignVehicle",boController.assignVehicle);
 router.post("/removeGroup",boController.removeGroup);
-
+router.post("/findWorker",boController.findWorker)
+router.post("/listInfo",boController.listInfo)
 module.exports = router;

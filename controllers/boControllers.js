@@ -85,7 +85,6 @@ exports.assignVehicle = async (req, res) => {
   try {
     const vehicleID = req.body.selectedVehicle_id;
     const Group = req.body.selectedGroup;
-    console.log(vehicleID, Group._id);
     await dbo
       .getDb()
       .collection("group")
@@ -95,7 +94,6 @@ exports.assignVehicle = async (req, res) => {
           $set: { vehicle_id: vehicleID },
         }
       )
-      .then(() => console.log("hi"));
     await dbo
       .getDb()
       .collection("vehicles")
@@ -133,7 +131,7 @@ exports.removeGroup = async (req, res) => {
   const WorkerCollection = await dbo.getDb().collection("worker");
   await Promise.all(
     Workers.map(async (Worker) => {
-      const filter = { _id: new ObjectId(Worker)};
+      const filter = { _id: new ObjectId(Worker) };
       const update = { $set: { is_avail: true, tasks: [] } };
       await WorkerCollection.updateOne(filter, update);
     })
@@ -150,5 +148,50 @@ exports.removeGroup = async (req, res) => {
     .getDb()
     .collection("group")
     .deleteOne({ _id: new ObjectId(req.body.group) });
-  res.send("Assign successfully")
+  res.send("Assign successfully");
+};
+
+exports.findWorker = async (req, res) => {
+  const userID = req.body._id;
+  const Group = await dbo
+    .getDb()
+    .collection("group")
+    .find({ worker_id: { $in: [userID] } })
+    .toArray();
+  const User = await dbo
+    .getDb()
+    .collection("worker")
+    .find({ _id: new ObjectId(userID) })
+    .toArray();
+  res.send({ user: User, group: Group });
+};
+exports.listInfo = async (req, res) => {
+  const _id = req.body._id;
+  const mcp_id = req.body.mcp_id;
+  const worker_id = req.body.worker_id.filter(id => id!=_id);
+  const MCPs = await Promise.all(
+    mcp_id.map(async (mcp) => {
+      const MCP = await dbo
+        .getDb()
+        .collection("tasks")
+        .findOne(
+          { _id: new ObjectId(mcp) },
+          { location: 1, priority: 1, _id: 0 }
+        );
+      return { location: MCP.location, priority: MCP.priority };
+    })
+  );
+  const Workers = await Promise.all(
+    worker_id.map(async (id) => {
+      const workers = await dbo
+        .getDb()
+        .collection("worker")
+        .findOne(
+          { _id: new ObjectId(id) },
+          { first_name: 1, last_name: 1,phone_number: 1,  _id: 0 }
+        );
+        return {first_name: workers.first_name, last_name: workers.last_name, phone_number: workers.phone_number};
+    })
+  );
+  res.send({workers: Workers, mcps: MCPs});
 };
