@@ -13,7 +13,7 @@ exports.viewMCP = async (req, res) => {
   const MCPs = await dbo
     .getDb()
     .collection("tasks")
-    .find({ isAssigned: false })
+    .find({})
     .toArray();
   res.send(MCPs);
 };
@@ -195,3 +195,15 @@ exports.listInfo = async (req, res) => {
   );
   res.send({workers: Workers, mcps: MCPs});
 };
+exports.writeDescription = async (req,res) =>{
+  await dbo
+  .getDb()
+  .collection("tasks")
+  .updateOne(
+    { _id: new ObjectId(req.body._id) }, // convert _id to ObjectId
+    { $set: { description: req.body.description } }
+  )
+  const MCP = await dbo.getDb().collection("tasks").find({}).toArray();
+  res.send(MCP)
+
+}
