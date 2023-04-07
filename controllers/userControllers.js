@@ -18,3 +18,16 @@ exports.login = async (req, res) => {
   console.log(user);
   return res.json(user);
 };
+
+exports.register = async (req, res) => {
+  const user = await dbo
+    .getDb()
+    .findOne(
+      { email: data.account},
+      { projection: { user_id: 1, _id: 0 } }
+    );
+  if (user)
+    return res.status(400).json({ message: "User already exists" });
+  const data = req.body;  
+  
+};
