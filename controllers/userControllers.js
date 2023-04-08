@@ -11,7 +11,7 @@ exports.login = async (req, res) => {
     .collection(`${data.isBO ? "back-officer" : "worker"}`)
     .findOne(
       { email: data.account, password: data.password },
-      { projection: { user_id: 1, _id: 0 } }
+      {projection: {_id: 1, user_id: 1}}
     );
   if (!user)
     return res.status(400).json({ message: "Wrong username or password" });
