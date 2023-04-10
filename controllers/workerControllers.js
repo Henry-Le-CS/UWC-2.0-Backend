@@ -25,7 +25,7 @@ exports.listInfo = async (req, res) => {
           { _id: new ObjectId(mcp) },
           { location: 1, priority: 1, _id: 1 }
         );
-      return { location: MCP.location, priority: MCP.priority, _id: MCP._id };
+      return { location: MCP.location, priority: MCP.priority, _id: MCP._id, lat: MCP.latitude, lng: MCP.longitude, description: MCP.description, isCompleted: MCP.isCompleted };
     })
   );
   const Workers = await Promise.all(
@@ -52,3 +52,10 @@ exports.listInfo = async (req, res) => {
     .findOne({ _id: new ObjectId(vehicle_id) }, { name: 1, _id: 0 });
   res.send({ workers: Workers, mcps: MCPs, vehicle: Vehicle });
 };
+exports.markStatus = async (req,res) =>{
+  const isCompleted = req.body.isCompleted
+  const _id = req.body._id
+  await dbo.getDb().collection("tasks").updateOne({_id: new ObjectId(_id)}, {$set: {isCompleted: !isCompleted}})
+  const MCPs = await dbo.getDb().collection("tasks").find({}).toArray()
+  res.send(MCPs)
+}
