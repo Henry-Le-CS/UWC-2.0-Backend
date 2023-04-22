@@ -7,11 +7,12 @@ router.get("/viewMCP", boController.viewMCP);
 router.get("/viewWorker", boController.viewWorker)
 router.get("/viewGroup",boController.viewGroup);
 router.get("/viewVehicle",boController.viewVehicle);
+router.get("/addMessages", boController.addMessages);
+router.get("/conversation", boController.conversation);
+// console.log(boController.listMessages)
+// get message
 router.post("/infoBO/listMessages", boController.listMessages);
 router.post("/infoBO/getAvaUrl", boController.getAvaUrl);
-// console.log(boController.listMessages)
-//get message
-
 router.post("/findGroup",boController.findGroup)
 router.post("/infoBO", boController.infoBO);
 router.post("/assignUser",boController.assignUser);
