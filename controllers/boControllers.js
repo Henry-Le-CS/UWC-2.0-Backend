@@ -9,6 +9,58 @@ exports.infoBO = async (req, res) => {
   res.send(user);
 };
 
+//fetch the list of messages. The mongoDB has the following structure:
+// - from_userid: the current user
+// - to_userid: the user that the current user is chatting with
+// - timestamp: the time that the message is sent
+// - message: the message content
+// return the list of messages in json format
+
+exports.listMessages = async (req, res) => {
+  //console.log("Hello");
+  //console.log(req.body);
+  const user_id = req.body.user_id;
+  const messages = await dbo
+    .getDb()
+    .collection("messages")
+    .find({
+      $or: [
+        { from_userid: user_id },
+        { to_userid: user_id }
+      ]
+    })
+    .toArray();
+  
+  const avaUrl = await dbo
+    .getDb()
+    .collection("back-officer")
+    .find({})
+    .toArray();
+  
+  for (let i = 0; i < messages.length; i++) {
+    // for each messages, we need to find avaUrl user_id
+    for (let j = 0; j < avaUrl.length; j++) {
+      console.log("Touser: ", messages[i].to_userid);
+      console.log("Targetuser:", avaUrl[j].user_id);
+      if (messages[i].to_userid == avaUrl[j].user_id) {
+        messages[i].target_url = avaUrl[j].ava_url;
+      }
+    }
+  }
+
+  console.log(messages);
+  res.send(messages);
+};
+
+exports.getAvaUrl = async (req, res) => {
+  const user_id = req.body.user_id;
+  const avaUrl = await dbo
+    .getDb()
+    .collection("back-officer")
+    .findOne({ user_id: user_id });
+  res.send(avaUrl.ava_url);
+};
+
 exports.viewMCP = async (req, res) => {
   const MCPs = await dbo
     .getDb()
